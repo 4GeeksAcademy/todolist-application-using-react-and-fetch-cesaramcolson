@@ -19,5 +19,3 @@ const AddTask = ({ newTask, setNewTask, addTask }) => {
 };
 
 export default AddTask;
-
-
