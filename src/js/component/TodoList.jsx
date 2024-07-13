@@ -14,7 +14,12 @@ const TodoList = () => {
                 "Content-type": "application/json"
             }
         })
-        .then((response) => response.json())
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Error creating user");
+            }
+            return response.json();
+        })
         .catch((error) => {
             console.error("Error creating user:", error);
         });
@@ -27,7 +32,15 @@ const TodoList = () => {
                 "Content-type": "application/json"
             }
         })
-        .then((response) => response.json())
+        .then((response) => {
+            if (!response.ok) {
+                if (response.status === 404) {
+                    return createUser().then(fetchTasks);
+                }
+                throw new Error("Error fetching tasks");
+            }
+            return response.json();
+        })
         .then((body) => {
             if (body && body.todos) {
                 setTasksList(body.todos.map(task => ({ label: task.label, id: task.id })));
@@ -38,22 +51,8 @@ const TodoList = () => {
         });
     };
 
-    const updateTasks = (tasks) => {
-        return fetch("https://playground.4geeks.com/todo/users/cesar-amcolson", {
-            method: "PUT",
-            headers: {
-                "Content-type": "application/json"
-            },
-            body: JSON.stringify({ todos: tasks.map(task => ({ label: task.label, done: false })) })
-        })
-        .then((response) => response.json())
-        .catch((error) => {
-            console.error("Error updating tasks:", error);
-        });
-    };
-
     useEffect(() => {
-        createUser().then(fetchTasks);
+        fetchTasks();
     }, []);
 
     const addTask = () => {
@@ -92,13 +91,9 @@ const TodoList = () => {
             }
         })
         .then((response) => response.json())
-        .then((body) => {
-        })
         .catch((error) => {
             console.error("Error deleting task:", error);
         });
-
-        updateTasks(updatedTasks);
     };
 
     const deleteUser = () => {
