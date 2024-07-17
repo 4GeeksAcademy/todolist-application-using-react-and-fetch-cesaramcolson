@@ -90,7 +90,7 @@ const TodoList = () => {
                 "Content-type": "application/json"
             }
         })
-        .then((response) => response.json())
+        .then((response) => response.text())
         .catch((error) => {
             console.error("Error deleting task:", error);
         });
